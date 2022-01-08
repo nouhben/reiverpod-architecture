@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +20,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.indigo,
       ),
-      home: const HomePageClock(),
+      home: const HomePageAsync(),
+      //const HomePageClock(),
       //const HomePageV4(),
       //const HomePageV3(), //const HomePageStateful(), //const HomePage(),
     );
@@ -182,6 +184,34 @@ class HomePageClock extends ConsumerWidget {
     return Scaffold(
       body: Center(
         child: Text('🚀 $time 🚀'),
+      ),
+    );
+  }
+}
+
+/// Future Provider & Stream Provider
+final futureProvider = FutureProvider<int>((ref) => Future<int>.value(10));
+
+final streamProvider = StreamProvider<int>(
+  (ref) => Stream.periodic(
+    const Duration(seconds: 2),
+    (v) => Random().nextInt(899),
+  ),
+);
+
+class HomePageAsync extends ConsumerWidget {
+  const HomePageAsync({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncValues = ref.watch(streamProvider);
+    return Scaffold(
+      body: Center(
+        child: asyncValues.when(
+          data: (int data) => Text('🚀 $data 🚀'),
+          error: (Object error, StackTrace? stackTrace) =>
+              const Text('🚀 | ERROR'),
+          loading: () => const CircularProgressIndicator.adaptive(),
+        ),
       ),
     );
   }
