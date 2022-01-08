@@ -193,10 +193,8 @@ class HomePageClock extends ConsumerWidget {
 final futureProvider = FutureProvider<int>((ref) => Future<int>.value(10));
 
 final streamProvider = StreamProvider<int>(
-  (ref) => Stream.periodic(
-    const Duration(seconds: 2),
-    (v) => Random().nextInt(899),
-  ),
+  (ref) =>
+      Stream.periodic(const Duration(seconds: 2), (v) => Random().nextInt(899)),
 );
 
 class HomePageAsync extends ConsumerWidget {
