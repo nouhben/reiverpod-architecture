@@ -103,6 +103,8 @@ class _HomePageStatefulState extends ConsumerState<HomePageStateful> {
   }
 }
 
+/// But with Provider<int> we can not change the value without using extra setState
+/// the solution is to use
 /// StateProvider
 final counterProvider = StateProvider<int>((ref) => 0);
 
@@ -157,6 +159,8 @@ class HomePageV4 extends ConsumerWidget {
   }
 }
 
+/// StateNotifier in the Models or ViewModels its just like creating providers with NotifyListeners
+/// and the use StateNotifierProvider<MyModel, dataType>
 class Clock extends StateNotifier<DateTime> {
   Clock() : super(DateTime.now()) {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
