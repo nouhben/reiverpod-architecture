@@ -196,7 +196,7 @@ class HomePageClock extends ConsumerWidget {
 /// Future Provider & Stream Provider
 final futureProvider = FutureProvider<int>((ref) => Future<int>.value(10));
 
-final streamProvider = StreamProvider<int>(
+final streamProvider = StreamProvider.autoDispose<int>(
   (ref) => Stream<int>.periodic(
       const Duration(seconds: 2), (v) => Random().nextInt(899)),
 );
@@ -207,23 +207,8 @@ class HomePageAsync extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(streamProvider, (previous, next) {
-      print('$previous');
-    });
     final asyncValues = ref.watch(streamProvider);
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        leading: IconButton(
-            onPressed: () {
-              _key.currentState!.openDrawer();
-            },
-            icon: const Icon(Icons.menu)),
-      ),
-      drawer: const Drawer(
-        backgroundColor: Colors.indigoAccent,
-        child: Text('data'),
-      ),
       body: Center(
         child: asyncValues.when(
           data: (int data) => Container(
