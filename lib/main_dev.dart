@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.indigo,
       ),
-      home: const HomePageAsync(),
+      home: HomePageAsync(),
       //const HomePageClock(),
       //const HomePageV4(),
       //const HomePageV3(), //const HomePageStateful(), //const HomePage(),
@@ -197,19 +197,55 @@ class HomePageClock extends ConsumerWidget {
 final futureProvider = FutureProvider<int>((ref) => Future<int>.value(10));
 
 final streamProvider = StreamProvider<int>(
-  (ref) =>
-      Stream.periodic(const Duration(seconds: 2), (v) => Random().nextInt(899)),
+  (ref) => Stream<int>.periodic(
+      const Duration(seconds: 2), (v) => Random().nextInt(899)),
 );
 
 class HomePageAsync extends ConsumerWidget {
-  const HomePageAsync({Key? key}) : super(key: key);
+  HomePageAsync({Key? key}) : super(key: key);
+  final GlobalKey<ScaffoldState> _key = GlobalKey(); // Create a key
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(streamProvider, (previous, next) {
+      print('$previous');
+    });
     final asyncValues = ref.watch(streamProvider);
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: true,
+        leading: IconButton(
+            onPressed: () {
+              _key.currentState!.openDrawer();
+            },
+            icon: const Icon(Icons.menu)),
+      ),
+      drawer: const Drawer(
+        backgroundColor: Colors.indigoAccent,
+        child: Text('data'),
+      ),
       body: Center(
         child: asyncValues.when(
-          data: (int data) => Text('🚀 $data 🚀'),
+          data: (int data) => Container(
+            color: Colors.indigo.withAlpha(30),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('🚀', style: Theme.of(context).textTheme.headline4),
+                SizedBox(
+                    width: 82.0,
+                    child: Text(
+                      '$data',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.headline4,
+                    )),
+                const SizedBox(width: 8.0),
+                Text('🚀', style: Theme.of(context).textTheme.headline4),
+              ],
+            ),
+          ),
           error: (Object error, StackTrace? stackTrace) =>
               const Text('🚀 | ERROR'),
           loading: () => const CircularProgressIndicator.adaptive(),
