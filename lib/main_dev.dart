@@ -1,12 +1,26 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main(List<String> args) {
-  runApp(const ProviderScope(child: MyApp()));
+final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  throw UnimplementedError();
+});
+void main(List<String> args) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final sp = await SharedPreferences.getInstance();
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(sp),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 // Provider scope is a provider that stores the state of all our providers
@@ -239,3 +253,22 @@ class HomePageAsync extends ConsumerWidget {
     );
   }
 }
+
+/// AutoDispose example with canceling http request
+final myProvider = FutureProvider.autoDispose((ref) async {
+  final cancelToken = dio.CancelToken();
+  const String path = 'my path';
+  ref.onDispose(() => cancelToken.cancel());
+  final response = await dio.Dio().get(path, cancelToken: cancelToken);
+  // If the request completed successfully, keep the state
+  ref.maintainState = true;
+  return response;
+});
+
+/// The family modifier ==> passe additional values to the created provider
+final familyExampleProvider =
+    StreamProvider.autoDispose.family<int, int>((ref, offset) {
+  return Stream.fromIterable([10 + offset, 9 * offset, 88 - offset]);
+});
+/// Then we can passe the value 
+//final streamAsyncValue = ref.watch(streamProvider(10));
